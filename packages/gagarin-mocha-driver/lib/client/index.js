@@ -3,17 +3,10 @@ import { Mocha } from 'meteor/gagarin:mocha';
 import Terminal from 'xterm';
 import 'xterm/src/xterm.css';
 import { Mongo } from 'meteor/mongo';
+import { Receiver } from '../utils/Receiver.js';
+import './index.html';
 
-class Report {
-  constructor (doc) {
-    Object.assign(this, doc);
-  }
-}
-
-const Reports = new Mongo.Collection('gagarin.reports', {
-  transform: doc => new Report(doc),
-});
-
+const Reports = new Mongo.Collection('gagarin.reports');
 const mocha = new Mocha({
   ui: 'bdd',
   reporter: 'spec',
@@ -32,7 +25,7 @@ Meteor.startup(function () {
 
 export function runTests () {
   
-  const nCols = 300;
+  const nCols = 140;
   const xterm = new Terminal({
     cols: nCols,
     rows: 40,
@@ -78,74 +71,27 @@ export function runTests () {
     resize();
   };
   xterm.open();
-  let runner = null;
-  let suite = new Mocha.Suite('');
   // mocha.run(function () {
   //   global.console.log = originalConsoleLog;
   // });
   // global.xterm = xterm;
   // global.Mocha = Mocha;
+  const receiver = new Receiver(mocha._reporter, mocha.options);
   Meteor.call('gagarin.runTests');
   Reports.find({}).observe({
     added (doc) {
-      switch (doc.name) {
-        case 'suite':
-          suite = createSuite(doc.args[0], suite);
-          runner.emit(doc.name, suite);
-          break;
-        case 'suite end':
-          suite = suite.parent;
-          runner.emit(doc.name, createSuite(doc.args[0]));
-          break;
-        case 'waiting':
-          runner.emit(doc.name, createSuite(doc.args[0]));
-          break;
-        case 'test end':
-        case 'pending':
-        case 'pass':
-          runner.emit(doc.name, createTest(doc.args[0]));
-          break;
-        case 'fail':
-          runner.emit(doc.name, createTest(doc.args[0], suite), createError(doc.args[1]));
-          break;
-        case 'end':
-          runner.emit(doc.name, doc.args[0]);
-          global.console.log = originalConsoleLog;
-          break;
-        case 'start':
-          runner = createRunner(suite, mocha._reporter, mocha.options);
-          runner.emit(doc.name, doc.args[0]);
-          xterm.reset();
-          global.console.log = consoleLog;
-          break;
-        default:
-          runner.emit(doc.name, doc.args[0]);
+      if (doc.name === 'start') {
+        xterm.reset();
+        global.console.log = consoleLog;
+      }
+      
+      receiver.emit(doc.name, ...doc.args);
+      
+      if (doc.name === 'end') {
+        global.console.log = originalConsoleLog;
       }
     }
   });
-}
-
-function createSuite (rawSuite, parent) {
-  const suite = new Mocha.Suite(rawSuite.title);
-  suite.parent = parent;
-  return suite;
-}
-
-function createTest (rawTest, parent) {
-  const test = new Mocha.Test(rawTest.title);
-  // Object.assign(test, rawTest);
-  test.parent = parent;
-  return test;
-}
-
-function createError (rawError) {
-  return rawError;
-}
-
-function createRunner (suite, reporter, options) {
-  const runner = new Mocha.Runner(suite, options.delay);
-  new reporter(runner, mocha.options);
-  return runner;
 }
 
 function stringify (data) {
@@ -159,27 +105,3 @@ function stringify (data) {
   }
   return '';
 }
-
-Mocha.prototype.createRunner = function() {
-  if (this.files.length) {
-    this.loadFiles();
-  }
-  const suite = this.suite;
-  const options = this.options;
-  options.files = this.files;
-  const runner = new Mocha.Runner(suite, options.delay);
-  const reporter = new this._reporter(runner, options);
-  runner.ignoreLeaks = options.ignoreLeaks !== false;
-  runner.fullStackTrace = options.fullStackTrace;
-  runner.hasOnly = options.hasOnly;
-  runner.asyncOnly = options.asyncOnly;
-  runner.allowUncaught = options.allowUncaught;
-  if (options.grep) {
-    runner.grep(options.grep, options.invert);
-  }
-  if (options.globals) {
-    runner.globals(options.globals);
-  }
-  return runner;
-};
-
