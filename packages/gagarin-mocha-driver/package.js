@@ -14,6 +14,7 @@ Package.onUse(function (api) {
   api.versionsFrom('1.4');
   api.use('ecmascript');
   api.use('promise');
+  api.use('templating');
   api.use('es5-shim');
   api.use('mongo');
   api.use('tmeasday:check-npm-versions');
