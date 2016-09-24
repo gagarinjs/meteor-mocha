@@ -15,18 +15,20 @@ for (const key of Object.keys(context)) {
   global[key] = context[key];
 }
 
-Meteor.startup(function () {
-  mocha.run();
+Meteor.methods({
+  'gagarin.runTests' () {
+    mocha.run();
+  }
 });
 
 const reports = [];
 const listeners = [];
 
-function report (name, data) {
+function report (name, ...args) {
   const _id = Random.id();
-  reports.push({ _id, name, data });
+  reports.push({ _id, name, args });
   listeners.forEach(listener => {
-    listener(_id, name, data);
+    listener(_id, name, args);
   });
 }
 
@@ -52,8 +54,8 @@ function Reporter (runner) {
     report('pass', cleanTest(test));
   });
 
-  runner.on('fail', test => {
-    report('fail', cleanTest(test));
+  runner.on('fail', (test, error) => {
+    report('fail', cleanTest(test), cleanError(error));
   });
 
   runner.on('test end', test => {
@@ -81,12 +83,12 @@ function Reporter (runner) {
 
 Meteor.publish('gagarin.reports.all', function () {
 
-  const onReport = (_id, name, data) => {
-    this.added('gagarin.reports', _id, { name, data });
+  const onReport = (_id, name, args) => {
+    this.added('gagarin.reports', _id, { name, args });
   };
 
-  reports.forEach(({ _id, name, data }) => {
-    onReport(_id, name, data);
+  reports.forEach(({ _id, name, args }) => {
+    onReport(_id, name, args);
   });
 
   listeners.push(onReport);
@@ -97,6 +99,16 @@ Meteor.publish('gagarin.reports.all', function () {
 
   this.ready();
 });
+
+function cleanError(error) {
+  return {
+    message: error.message,
+    stack: error.stack,
+    showDiff: error.showDiff,
+    actual: error.actual,
+    expected: error.expected,
+  };
+}
 
 function cleanSuite(suite) {
   return {
@@ -109,7 +121,6 @@ function cleanTest(test) {
   return {
     speed: test.speed,
     title: test.title,
-    fullTitle: test.fullTitle(),
     duration: test.duration,
   };
 }

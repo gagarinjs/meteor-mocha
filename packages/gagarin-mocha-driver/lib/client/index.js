@@ -4,7 +4,16 @@ import Terminal from 'xterm';
 import 'xterm/src/xterm.css';
 import { Mongo } from 'meteor/mongo';
 
-const Reports = new Mongo.Collection('gagarin.reports');
+class Report {
+  constructor (doc) {
+    Object.assign(this, doc);
+  }
+}
+
+const Reports = new Mongo.Collection('gagarin.reports', {
+  transform: doc => new Report(doc),
+});
+
 const mocha = new Mocha({
   ui: 'bdd',
   reporter: 'spec',
@@ -22,9 +31,10 @@ Meteor.startup(function () {
 });
 
 export function runTests () {
-
+  
+  const nCols = 300;
   const xterm = new Terminal({
-    cols: 140,
+    cols: nCols,
     rows: 40,
     convertEol: true,
     cursorBlink: true,
@@ -35,7 +45,7 @@ export function runTests () {
   const resize = function () {
     if (!waitingForResize) {
       setTimeout(function () {
-        xterm.resize(140, xterm.lines.length);
+        xterm.resize(nCols, xterm.lines.length);
         waitingForResize = false;
       }, 50);
       waitingForResize = true;
@@ -49,7 +59,9 @@ export function runTests () {
   };
   Mocha.reporters.Base.useColors = true;
   Mocha.reporters.Base.window.width = xterm.cols;
-  global.console.log = function (fmt, ...args) {
+  // global.console.log =
+  
+  function consoleLog (fmt, ...args) {
     if (typeof fmt === 'string') {
       fmt = fmt
         .replace(/%[sd]/g, function () {
@@ -66,48 +78,75 @@ export function runTests () {
     resize();
   };
   xterm.open();
-  const runner = mocha.createRunner();
+  let runner = null;
+  let suite = new Mocha.Suite('');
   // mocha.run(function () {
   //   global.console.log = originalConsoleLog;
   // });
+  // global.xterm = xterm;
+  // global.Mocha = Mocha;
+  Meteor.call('gagarin.runTests');
   Reports.find({}).observe({
     added (doc) {
       switch (doc.name) {
         case 'suite':
+          suite = createSuite(doc.args[0], suite);
+          runner.emit(doc.name, suite);
+          break;
         case 'suite end':
+          suite = suite.parent;
+          runner.emit(doc.name, createSuite(doc.args[0]));
+          break;
         case 'waiting':
-          runner.emit(doc.name, createSuite(doc.data));
+          runner.emit(doc.name, createSuite(doc.args[0]));
           break;
         case 'test end':
         case 'pending':
         case 'pass':
+          runner.emit(doc.name, createTest(doc.args[0]));
+          break;
         case 'fail':
-          runner.emit(doc.name, createTest(doc.data));
+          runner.emit(doc.name, createTest(doc.args[0], suite), createError(doc.args[1]));
           break;
         case 'end':
-          runner.emit(doc.name, doc.data);
+          runner.emit(doc.name, doc.args[0]);
           global.console.log = originalConsoleLog;
           break;
+        case 'start':
+          runner = createRunner(suite, mocha._reporter, mocha.options);
+          runner.emit(doc.name, doc.args[0]);
+          xterm.reset();
+          global.console.log = consoleLog;
+          break;
         default:
-          runner.emit(doc.name, doc.data);
+          runner.emit(doc.name, doc.args[0]);
       }
     }
   });
 }
 
-function createSuite (data) {
-  const suite = new Mocha.Suite(data.title);
-  Object.assign(suite, data);
+function createSuite (rawSuite, parent) {
+  const suite = new Mocha.Suite(rawSuite.title);
+  suite.parent = parent;
   return suite;
 }
 
-function createTest (data) {
-  const test = new Mocha.Test(data.title);
-  Object.assign(test, data);
+function createTest (rawTest, parent) {
+  const test = new Mocha.Test(rawTest.title);
+  // Object.assign(test, rawTest);
+  test.parent = parent;
   return test;
 }
 
-// FlowRouter.route('/', { action: function () {} });
+function createError (rawError) {
+  return rawError;
+}
+
+function createRunner (suite, reporter, options) {
+  const runner = new Mocha.Runner(suite, options.delay);
+  new reporter(runner, mocha.options);
+  return runner;
+}
 
 function stringify (data) {
   if (typeof data === 'string') {

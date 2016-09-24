@@ -6,8 +6,8 @@ describe('Test Methods.', function () {
     it('should be ok (2)', function () {
       
     });
-    it.skip('should be ok (3)', function () {
-      
+    it('should be ok (3)', function () {
+      ({ a: 1, b: 1 }).should.deep.equal({ a: 1 });
     });
   });
 });
