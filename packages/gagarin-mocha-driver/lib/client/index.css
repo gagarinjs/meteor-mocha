@@ -1,0 +1,10 @@
+body {
+  background: black;
+}
+
+.terminal {
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  pointer-events: none;
+}

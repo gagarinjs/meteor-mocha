@@ -1,0 +1,13 @@
+{
+  "name": "simple",
+  "private": true,
+  "scripts": {
+    "start": "meteor run"
+  },
+  "dependencies": {
+    "meteor-node-stubs": "~0.2.0"
+  },
+  "devDependencies": {
+    "mocha": "^3.0.2"
+  }
+}
