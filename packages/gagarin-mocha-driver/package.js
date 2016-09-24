@@ -15,6 +15,7 @@ Package.onUse(function (api) {
   api.use('ecmascript');
   api.use('promise');
   api.use('es5-shim');
+  api.use('mongo');
   api.use('tmeasday:check-npm-versions');
   api.use('gagarin:mocha');
   api.use('gagarin:mocha-fibers');

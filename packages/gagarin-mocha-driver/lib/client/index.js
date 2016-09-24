@@ -1,7 +1,10 @@
+import { Meteor } from 'meteor/meteor';
 import { Mocha } from 'meteor/gagarin:mocha';
 import Terminal from 'xterm';
 import 'xterm/src/xterm.css';
+import { Mongo } from 'meteor/mongo';
 
+const Reports = new Mongo.Collection('gagarin.reports');
 const mocha = new Mocha({
   ui: 'bdd',
   reporter: 'spec',
@@ -13,6 +16,10 @@ mocha.suite.emit('pre-require', context, undefined, mocha);
 for (const key of Object.keys(context)) {
   global[key] = context[key];
 }
+
+Meteor.startup(function () {
+  Meteor.subscribe('gagarin.reports.all');
+});
 
 export function runTests () {
 
@@ -59,11 +66,45 @@ export function runTests () {
     resize();
   };
   xterm.open();
-  mocha.run(function () {
-    global.console.log = originalConsoleLog;
+  const runner = mocha.createRunner();
+  // mocha.run(function () {
+  //   global.console.log = originalConsoleLog;
+  // });
+  Reports.find({}).observe({
+    added (doc) {
+      switch (doc.name) {
+        case 'suite':
+        case 'suite end':
+        case 'waiting':
+          runner.emit(doc.name, createSuite(doc.data));
+          break;
+        case 'test end':
+        case 'pending':
+        case 'pass':
+        case 'fail':
+          runner.emit(doc.name, createTest(doc.data));
+          break;
+        case 'end':
+          runner.emit(doc.name, doc.data);
+          global.console.log = originalConsoleLog;
+          break;
+        default:
+          runner.emit(doc.name, doc.data);
+      }
+    }
   });
-  global.xterm = xterm;
-  global.Mocha = Mocha;
+}
+
+function createSuite (data) {
+  const suite = new Mocha.Suite(data.title);
+  Object.assign(suite, data);
+  return suite;
+}
+
+function createTest (data) {
+  const test = new Mocha.Test(data.title);
+  Object.assign(test, data);
+  return test;
 }
 
 // FlowRouter.route('/', { action: function () {} });
@@ -80,4 +121,26 @@ function stringify (data) {
   return '';
 }
 
+Mocha.prototype.createRunner = function() {
+  if (this.files.length) {
+    this.loadFiles();
+  }
+  const suite = this.suite;
+  const options = this.options;
+  options.files = this.files;
+  const runner = new Mocha.Runner(suite, options.delay);
+  const reporter = new this._reporter(runner, options);
+  runner.ignoreLeaks = options.ignoreLeaks !== false;
+  runner.fullStackTrace = options.fullStackTrace;
+  runner.hasOnly = options.hasOnly;
+  runner.asyncOnly = options.asyncOnly;
+  runner.allowUncaught = options.allowUncaught;
+  if (options.grep) {
+    runner.grep(options.grep, options.invert);
+  }
+  if (options.globals) {
+    runner.globals(options.globals);
+  }
+  return runner;
+};
 
