@@ -23,6 +23,12 @@ Template.reporter.helpers({
       return 'active';
     }
   },
+  status (source) {
+    if (Reports.find({ source, name: 'fail' }).count() > 0) {
+      return 'error';
+    }
+    return 'success';
+  }
 });
 
 Template.reporter.events({

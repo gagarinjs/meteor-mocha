@@ -1,4 +1,5 @@
 /*eslint-env mocha*/
+import { Meteor } from 'meteor/meteor';
 
 describe('Test Methods.', function () {
   describe('Given some more context', function () {
@@ -8,8 +9,10 @@ describe('Test Methods.', function () {
     it('should be ok (2)', function () {
       
     });
-    it('should be ok (3)', function () {
-      ({ a: 1, b: 1 }).should.deep.equal({ a: 1 });
-    });
+    if (Meteor.isServer) {
+      it('should be ok (3)', function () {
+        ({ a: 1, b: 1 }).should.deep.equal({ a: 1 });
+      });
+    }
   });
 });

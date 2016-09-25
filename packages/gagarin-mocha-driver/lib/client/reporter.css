@@ -23,6 +23,21 @@
 }
 
 .navigation
+.navigation__item.active.error {
+  color: #d44;
+}
+
+.navigation
 .navigation__item:hover {
   border-color: #4d4;
+}
+
+.navigation
+.navigation__item.error {
+  border-color: #944;
+}
+
+.navigation
+.navigation__item.error:hover {
+  border-color: #d44;
 }
