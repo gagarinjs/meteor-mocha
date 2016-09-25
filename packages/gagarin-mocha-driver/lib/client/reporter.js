@@ -28,7 +28,13 @@ Template.reporter.helpers({
       return 'error';
     }
     return 'success';
-  }
+  },
+  symbol (source) {
+    if (Reports.find({ source, name: 'fail' }).count() > 0) {
+      return Mocha.reporters.Base.symbols.err;
+    }
+    return Mocha.reporters.Base.symbols.ok;
+  },
 });
 
 Template.reporter.events({

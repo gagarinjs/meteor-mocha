@@ -1,43 +1,43 @@
 .navigation {
+  box-sizing: border-box;
   position: absolute;
   top: 0;
   right: 0;
   color: #555;
   font-family: sans-serif;
-  padding: 4px;
+  padding: 8px;
   z-index: 1;
 }
 
 .navigation
 .navigation__item {
-  display: inline-block;;
-  padding: .5em 1em;
-  border: 1px solid #444;
+  box-sizing: border-box;
+  display: inline-block;
+  position: relative;
+  padding: .5em .75em;
   cursor: pointer;
   background: rgba(0,0,0,0.5);
+  opacity: 0.8;
 }
 
 .navigation
 .navigation__item.active {
-  color: #4d4;
-}
-
-.navigation
-.navigation__item.active.error {
-  color: #d44;
+  border-bottom: 4px solid grey;
 }
 
 .navigation
 .navigation__item:hover {
-  border-color: #4d4;
+  opacity: 1;
 }
 
 .navigation
 .navigation__item.error {
-  border-color: #944;
+  color: #d44;
+  border-color: #d44;
 }
 
 .navigation
-.navigation__item.error:hover {
-  border-color: #d44;
+.navigation__item.success {
+  color: #4d4;
+  border-color: #4d4;
 }
