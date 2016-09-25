@@ -4,6 +4,7 @@ import Terminal from 'xterm';
 import 'xterm/src/xterm.css';
 import { Mongo } from 'meteor/mongo';
 import { Receiver } from '../utils/Receiver.js';
+import { captureAllOutput } from '../utils/captureAllOutput';
 import './index.html';
 
 const Reports = new Mongo.Collection('gagarin.reports');
@@ -45,31 +46,8 @@ export function runTests () {
     }
   };
 
-  const originalConsoleLog = console.log;
-  Mocha.process.stdout.write = function (data) {
-    xterm.write(data);
-    resize();
-  };
   Mocha.reporters.Base.useColors = true;
   Mocha.reporters.Base.window.width = xterm.cols;
-  // global.console.log =
-  
-  function consoleLog (fmt, ...args) {
-    if (typeof fmt === 'string') {
-      fmt = fmt
-        .replace(/%[sd]/g, function () {
-          const value = args[0];
-          args = args.slice(1);
-          return value;
-        });
-    }
-    xterm.write(stringify(fmt));
-    for (const arg of args) {
-      xterm.write(stringify(arg));
-    }
-    xterm.write('\n');
-    resize();
-  };
   xterm.open();
   // mocha.run(function () {
   //   global.console.log = originalConsoleLog;
@@ -77,31 +55,23 @@ export function runTests () {
   // global.xterm = xterm;
   // global.Mocha = Mocha;
   const receiver = new Receiver(mocha._reporter, mocha.options);
+  let output;
   Meteor.call('gagarin.runTests');
   Reports.find({}).observe({
     added (doc) {
       if (doc.name === 'start') {
-        xterm.reset();
-        global.console.log = consoleLog;
+        output = captureAllOutput({
+          onOutput: xterm.write.bind(xterm),
+          onUpdate: resize,
+        });
       }
       
       receiver.emit(doc.name, ...doc.args);
       
-      if (doc.name === 'end') {
-        global.console.log = originalConsoleLog;
+      if (doc.name === 'end' && output) {
+        output.restore();
+        output = null;
       }
     }
   });
-}
-
-function stringify (data) {
-  if (typeof data === 'string') {
-    // return data.replace(/\n/g, '\n\r');
-    return data;
-  } else if (typeof data === 'object') {
-    return JSON.stringify(data);
-  } else if (data || data === 0) {
-    return data.toString();
-  }
-  return '';
 }
