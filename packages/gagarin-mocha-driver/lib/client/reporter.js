@@ -3,6 +3,7 @@ import { Mocha } from 'meteor/gagarin:mocha';
 import { Receiver } from '../utils/Receiver.js';
 import { captureAllOutput } from '../utils/captureAllOutput';
 import { Reports } from './Reports.js';
+import { ReactiveVar } from 'meteor/reactive-var';
 import Terminal from 'xterm';
 import 'xterm/src/xterm.css';
 import './reporter.html';
@@ -10,6 +11,24 @@ import './reporter.css';
 
 Template.reporter.onCreated(function () {
   this.subscribe('gagarin.reports');
+  this.currentSource = new ReactiveVar('client');
+});
+
+Template.reporter.helpers({
+  currentSource () {
+    return Template.instance().currentSource.get();
+  },
+  activeIf (source) {
+    if (Template.instance().currentSource.get() === source) {
+      return 'active';
+    }
+  },
+});
+
+Template.reporter.events({
+  'click [data-source]': function (e, t) {
+    t.currentSource.set(e.currentTarget.dataset.source);
+  }
 });
 
 Template.reporter.onRendered(function () {
@@ -21,7 +40,6 @@ Template.reporter.onRendered(function () {
     cursorBlink: true,
     scrollback: 0, // should result in infinite buffer?
   });
-
   let waitingForResize = false;
   const resize = function () {
     if (!waitingForResize) {
@@ -32,29 +50,32 @@ Template.reporter.onRendered(function () {
       waitingForResize = true;
     }
   };
-
   Mocha.reporters.Base.useColors = true;
   Mocha.reporters.Base.window.width = xterm.cols;
 
   xterm.open(this.find('.xterm'));
 
-  const receiver = new Receiver(Mocha.reporters.spec);
-  let output;
-  Reports.find({
-    source: 'server'
-  }).observe({
-    added (doc) {
-      if (doc.name === 'start') {
-        output = captureAllOutput({
-          onOutput: xterm.write.bind(xterm),
-          onUpdate: resize,
-        });
+  this.autorun(() => {
+    const currentSource = this.currentSource.get();
+    const receiver = new Receiver(Mocha.reporters.spec);
+    let output;
+    xterm.reset();
+    Reports.find({
+      source: currentSource
+    }).observe({
+      added (doc) {
+        if (doc.name === 'start') {
+          output = captureAllOutput({
+            onOutput: xterm.write.bind(xterm),
+            onUpdate: resize,
+          });
+        }
+        receiver.emit(doc.name, ...doc.args);
+        if (doc.name === 'end' && output) {
+          output.restore();
+          output = null;
+        }
       }
-      receiver.emit(doc.name, ...doc.args);
-      if (doc.name === 'end' && output) {
-        output.restore();
-        output = null;
-      }
-    }
+    });
   });
 });

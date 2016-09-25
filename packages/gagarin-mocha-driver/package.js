@@ -17,6 +17,7 @@ Package.onUse(function (api) {
   api.use('templating');
   api.use('es5-shim');
   api.use('mongo');
+  api.use('reactive-var');
   api.use('tmeasday:check-npm-versions');
   api.use('gagarin:mocha');
   api.use('gagarin:mocha-fibers');
