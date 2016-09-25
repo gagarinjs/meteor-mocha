@@ -4,6 +4,7 @@ import { Receiver } from '../utils/Receiver.js';
 import { captureAllOutput } from '../utils/captureAllOutput';
 import { Reports } from './Reports.js';
 import { ReactiveVar } from 'meteor/reactive-var';
+import { $ } from 'meteor/jquery';
 import Terminal from 'xterm';
 import 'xterm/src/xterm.css';
 import './reporter.html';
@@ -12,6 +13,7 @@ import './reporter.css';
 Template.reporter.onCreated(function () {
   this.subscribe('gagarin.reports');
   this.currentSource = new ReactiveVar('client');
+  this.nColumns = new ReactiveVar(140);
 });
 
 Template.reporter.helpers({
@@ -44,31 +46,34 @@ Template.reporter.events({
 });
 
 Template.reporter.onRendered(function () {
-  const nCols = 140;
   const xterm = new Terminal({
-    cols: nCols,
+    cols: this.nColumns.get(),
     rows: 40,
     convertEol: true,
     cursorBlink: true,
     scrollback: 0, // should result in infinite buffer?
   });
   let waitingForResize = false;
-  const resize = function () {
+  this.resize = () => {
     if (!waitingForResize) {
-      setTimeout(function () {
-        xterm.resize(nCols, xterm.lines.length);
+      setTimeout(() => {
+        const nColumns = Math.floor(window.innerWidth / 7.5);
+        this.nColumns.set(nColumns);
+        xterm.resize(nColumns, xterm.lines.length);
         waitingForResize = false;
       }, 50);
       waitingForResize = true;
     }
   };
+  $(window).on('resize', this.resize);
+
   Mocha.reporters.Base.useColors = true;
   Mocha.reporters.Base.window.width = xterm.cols;
 
   xterm.open(this.find('.xterm'));
-
   this.autorun(() => {
     const currentSource = this.currentSource.get();
+    const nColumns = this.nColumns.get();
     const receiver = new Receiver(Mocha.reporters.spec);
     let output;
     xterm.reset();
@@ -79,7 +84,7 @@ Template.reporter.onRendered(function () {
         if (doc.name === 'start') {
           output = captureAllOutput({
             onOutput: xterm.write.bind(xterm),
-            onUpdate: resize,
+            onUpdate: this.resize,
           });
         }
         receiver.emit(doc.name, ...doc.args);
@@ -90,4 +95,8 @@ Template.reporter.onRendered(function () {
       }
     });
   });
+});
+
+Template.reporter.onDestroyed(function () {
+  $(window).off('resize', this.resize);
 });
