@@ -1,0 +1,28 @@
+.navigation {
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: #555;
+  font-family: sans-serif;
+  padding: 4px;
+  z-index: 1;
+}
+
+.navigation
+.navigation__item {
+  display: inline-block;;
+  padding: .5em 1em;
+  border: 1px solid #444;
+  cursor: pointer;
+  background: rgba(0,0,0,0.5);
+}
+
+.navigation
+.navigation__item.active {
+  color: #4d4;
+}
+
+.navigation
+.navigation__item:hover {
+  border-color: #4d4;
+}

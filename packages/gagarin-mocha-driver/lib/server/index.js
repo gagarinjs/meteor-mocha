@@ -35,7 +35,7 @@ function report (name, ...args) {
   });
 }
 
-Meteor.publish('gagarin.reports.all', function () {
+Meteor.publish('gagarin.reports', function () {
 
   const onReport = (_id, name, args) => {
     this.added('gagarin.reports', _id, { name, args });
