@@ -26,3 +26,7 @@ mdg:validated-method
 gagarin:unit
 gagarin:mocha-driver
 
+accounts-base
+accounts-password
+aldeed:simple-schema
+aldeed:collection2

@@ -67,7 +67,6 @@ Template.reporter.onRendered(function () {
       waitingForResize = true;
     }
   };
-  this.resize();
   $(window).on('resize', this.resize);
 
   Mocha.reporters.Base.useColors = true;
@@ -80,6 +79,7 @@ Template.reporter.onRendered(function () {
     const receiver = new Receiver(Mocha.reporters.spec);
     let output;
     xterm.reset();
+    this.resize();
     Reports.find({
       source: currentSource
     }).observe({
