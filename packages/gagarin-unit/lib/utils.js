@@ -2,14 +2,6 @@ import { Mongo } from 'meteor/mongo';
 import sinon from 'sinon';
 import jsc from 'jsverify';
 
-export function union (array1, array2) {
-  const result = new Set(array1);
-  for (const item of array2) {
-    result.add(item);
-  }
-  return Array.from(result);
-}
-
 export function property (arbitrary, verify) {
   let error = null;
   const test = jsc.forall(arbitrary, function (...args) {
@@ -45,6 +37,7 @@ export class Sandbox {
       'find',
       'findOne',
       'insert',
+      'upsert',
       'update',
       'remove',
     ].forEach(name => {
