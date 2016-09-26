@@ -4,6 +4,7 @@ import { Receiver } from '../utils/Receiver.js';
 import { captureAllOutput } from '../utils/captureAllOutput';
 import { Reports } from './Reports.js';
 import { ReactiveVar } from 'meteor/reactive-var';
+import { fontSize } from './fontSize.js';
 import { $ } from 'meteor/jquery';
 import Terminal from 'xterm';
 import 'xterm/src/xterm.css';
@@ -57,7 +58,8 @@ Template.reporter.onRendered(function () {
   this.resize = () => {
     if (!waitingForResize) {
       setTimeout(() => {
-        const nColumns = Math.floor(window.innerWidth / 7.5);
+        const size = fontSize(this.find('.xterm .terminal'));
+        const nColumns = Math.floor(window.innerWidth / size);
         this.nColumns.set(nColumns);
         xterm.resize(nColumns, xterm.lines.length);
         waitingForResize = false;
@@ -65,6 +67,7 @@ Template.reporter.onRendered(function () {
       waitingForResize = true;
     }
   };
+  this.resize();
   $(window).on('resize', this.resize);
 
   Mocha.reporters.Base.useColors = true;
@@ -72,8 +75,8 @@ Template.reporter.onRendered(function () {
 
   xterm.open(this.find('.xterm'));
   this.autorun(() => {
+    this.nColumns.get(); // only depend on this variable ...
     const currentSource = this.currentSource.get();
-    const nColumns = this.nColumns.get();
     const receiver = new Receiver(Mocha.reporters.spec);
     let output;
     xterm.reset();
