@@ -25,6 +25,9 @@ export function captureAllOutput ({ onOutput=noop, onUpdate=noop }={}) {
     onUpdate();
   };
   return {
+    original (...args) {
+      return originalConsoleLog(...args);
+    },
     restore () {
       Mocha.process.stdout.write = originalMochaWrite;
       global.console.log = originalConsoleLog;
