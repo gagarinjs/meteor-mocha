@@ -2,16 +2,12 @@
 Package.describe({
   name        : 'gagarin:mocha-fibers',
   version     : '0.0.1',
-  description : 'Mocha test driver package from Gagarin team',
+  description : 'Mocha bdd wrapper for serve-side tests',
   testOnly    : true,
 });
 
-Npm.depends({
-  'mocha': '2.5.3',
-});
-
 Package.onUse(function (api) {
-  api.versionsFrom('1.3');
+  api.versionsFrom('1.4');
   api.use('ecmascript');
   api.use('promise');
   api.use('es5-shim');

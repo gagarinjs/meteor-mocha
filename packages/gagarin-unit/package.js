@@ -15,7 +15,7 @@ Npm.depends({
 });
 
 Package.onUse(function (api) {
-  api.versionsFrom('1.3');
+  api.versionsFrom('1.4');
   api.use('mongo');
   api.use('ecmascript');
   api.use('promise');
