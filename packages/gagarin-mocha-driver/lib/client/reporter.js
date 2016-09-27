@@ -12,28 +12,28 @@ import './reporter.html';
 import './reporter.css';
 
 Template.reporter.onCreated(function () {
-  this.subscribe('gagarin.reports');
-  this.currentSource = new ReactiveVar('client');
+  this.subscribe('Gagarin.Reports.all');
+  this.currentSuiteId = new ReactiveVar(this.data.suites[0].id);
   this.nColumns = new ReactiveVar(140);
 });
 
 Template.reporter.helpers({
-  currentSource () {
-    return Template.instance().currentSource.get();
+  currentSuiteId () {
+    return Template.instance().currentSuiteId.get();
   },
-  activeIf (source) {
-    if (Template.instance().currentSource.get() === source) {
+  activeIf (suiteId) {
+    if (Template.instance().currentSuiteId.get() === suiteId) {
       return 'active';
     }
   },
-  status (source) {
-    if (Reports.find({ source, name: 'fail' }).count() > 0) {
+  status (suiteId) {
+    if (Reports.find({ suiteId, name: 'fail' }).count() > 0) {
       return 'error';
     }
     return 'success';
   },
-  symbol (source) {
-    if (Reports.find({ source, name: 'fail' }).count() > 0) {
+  icon (suiteId) {
+    if (Reports.find({ suiteId, name: 'fail' }).count() > 0) {
       return Mocha.reporters.Base.symbols.err;
     }
     return Mocha.reporters.Base.symbols.ok;
@@ -41,8 +41,8 @@ Template.reporter.helpers({
 });
 
 Template.reporter.events({
-  'click [data-source]': function (e, t) {
-    t.currentSource.set(e.currentTarget.dataset.source);
+  'click .js-suite': function (e, t) {
+    t.currentSuiteId.set(this.id);
   }
 });
 
@@ -75,13 +75,15 @@ Template.reporter.onRendered(function () {
   xterm.open(this.find('.xterm'));
   this.autorun(() => {
     this.nColumns.get(); // only depend on this variable ...
-    const currentSource = this.currentSource.get();
+    const currentSuiteId = this.currentSuiteId.get();
     const receiver = new Receiver(Mocha.reporters.spec);
     let output;
     xterm.reset();
     this.resize();
     Reports.find({
-      source: currentSource
+      suiteId: currentSuiteId
+    }, {
+      sort: { index: 1 },
     }).observe({
       added (doc) {
         if (doc.name === 'start') {

@@ -3,9 +3,29 @@ import { Random } from 'meteor/random';
 import { Mocha } from 'meteor/gagarin:mocha';
 import { createDispatcher } from '../utils/createDispatcher.js';
 
+const reports = [];
+const listeners = [];
+
+function addReport (suiteId, name, ...args) {
+  const _id = Random.id();
+  const rawReport = {
+    _id,
+    name,
+    suiteId,
+    args,
+    index: reports.length,
+  };
+  reports.push(rawReport);
+  listeners.forEach(listener => {
+    listener(rawReport);
+  });
+}
+
+const suiteId = Random.id();
+const dispatch = addReport.bind(null, suiteId);
 const mocha = new Mocha({
   ui: 'gagarin:bdd-fibers',
-  reporter: createDispatcher(report),
+  reporter: createDispatcher(dispatch),
 });
 
 const context = {};
@@ -17,32 +37,28 @@ for (const key of Object.keys(context)) {
 }
 
 Meteor.methods({
-  'gagarin.runTests' () {
-    if (alreadyRun) return;
-    alreadyRun = true;
-    mocha.run();
-  }
+  'Gagarin.runTests' () {
+    if (!alreadyRun) {
+      alreadyRun = true;
+      mocha.run();
+    }
+    return suiteId;
+  },
+  'Gagarin.Reports.insert': function (suiteId, rawReport) {
+    addReport(suiteId, rawReport.name, ...rawReport.args);
+  },
 });
 
-const reports = [];
-const listeners = [];
+Meteor.publish('Gagarin.Reports.all', function () {
 
-function report (name, ...args) {
-  const _id = Random.id();
-  reports.push({ _id, name, args });
-  listeners.forEach(listener => {
-    listener(_id, name, args);
-  });
-}
-
-Meteor.publish('gagarin.reports', function () {
-
-  const onReport = (_id, name, args) => {
-    this.added('gagarin.reports', _id, { name, args });
+  const onReport = rawReport => {
+    const fields = { ...rawReport };
+    delete fields._id;
+    this.added('Gagarin.Reports', rawReport._id, fields);
   };
 
-  reports.forEach(({ _id, name, args }) => {
-    onReport(_id, name, args);
+  reports.forEach(rawReport => {
+    onReport(rawReport);
   });
 
   listeners.push(onReport);

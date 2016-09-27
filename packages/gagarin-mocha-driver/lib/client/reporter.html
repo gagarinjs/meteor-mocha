@@ -1,7 +1,8 @@
 <template name="reporter">
   <div class="navigation">
-    <div class="navigation__item {{status 'client'}} {{activeIf 'client'}}" data-source="client">{{symbol 'client'}} client</div>
-    <div class="navigation__item {{status 'server'}} {{activeIf 'server'}}" data-source="server">{{symbol 'server'}} server</div>
+    {{#each suites}}
+      <div class="navigation__item {{status id}} {{activeIf id}} js-suite">{{icon id}} {{title}}</div>
+    {{/each}}
   </div>
   <div class="xterm"></div>
 </template>

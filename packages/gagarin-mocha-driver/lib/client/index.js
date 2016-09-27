@@ -1,11 +1,14 @@
 import { Template } from 'meteor/templating';
 import { Meteor } from 'meteor/meteor';
+import { Random } from 'meteor/random';
 import { Mocha } from 'meteor/gagarin:mocha';
-import { Reports } from './Reports.js';
+import { ReactiveVar } from 'meteor/reactive-var';
 import { createDispatcher } from '../utils/createDispatcher.js';
 import './index.html';
 import './reporter.js';
 
+const clientSuiteId = new ReactiveVar(Random.id());
+const serverSuiteId = new ReactiveVar('');
 const mocha = new Mocha({
   ui: 'bdd',
   reporter: createDispatcher(dispatch),
@@ -20,19 +23,27 @@ for (const key of Object.keys(context)) {
 
 export function runTests () {
   mocha.run();
-  Meteor.call('gagarin.runTests');
+  Meteor.call('Gagarin.runTests', (err, suiteId) => {
+    if (!err && suiteId) {
+      serverSuiteId.set(suiteId);
+    }
+  });
 }
 
 function dispatch (name, ...args) {
-  Reports.insert({
-    name,
-    args,
-    source: 'client',
+  Meteor.call('Gagarin.Reports.insert', clientSuiteId.get(), {
+    name, args,
   });
 }
 
 Template.body.helpers({
   _reporter () {
     return Mocha.reporters.spec;
-  }
+  },
+  suites () {
+    return [
+      { id: clientSuiteId.get(), title: 'client' },
+      { id: serverSuiteId.get(), title: 'server' },
+    ];
+  },
 });
