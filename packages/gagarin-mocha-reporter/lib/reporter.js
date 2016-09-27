@@ -1,8 +1,8 @@
 import { Template } from 'meteor/templating';
 import { Mocha } from 'meteor/gagarin:mocha';
-import { Receiver } from '../utils/Receiver.js';
-import { captureAllOutput } from '../utils/captureAllOutput';
-import { Reports } from './Reports.js';
+import { Receiver } from './Receiver.js';
+import { captureAllOutput } from './captureAllOutput';
+import { Reports, SUBSCRIPTION_ALL_REPORTS } from 'meteor/gagarin:mocha-driver';
 import { ReactiveVar } from 'meteor/reactive-var';
 import { fontSize } from './fontSize.js';
 import { $ } from 'meteor/jquery';
@@ -12,7 +12,7 @@ import './reporter.html';
 import './reporter.css';
 
 Template.reporter.onCreated(function () {
-  this.subscribe('Gagarin.Reports.all');
+  this.subscribe(SUBSCRIPTION_ALL_REPORTS);
   this.currentSuiteId = new ReactiveVar(this.data.suites[0].id);
   this.nColumns = new ReactiveVar(140);
 });

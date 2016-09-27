@@ -1,11 +1,10 @@
-import { Template } from 'meteor/templating';
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
 import { Mocha } from 'meteor/gagarin:mocha';
 import { ReactiveVar } from 'meteor/reactive-var';
-import { createDispatcher } from '../utils/createDispatcher.js';
-import './index.html';
-import './reporter.js';
+import { createDispatcher } from '../createDispatcher.js';
+import { Reports } from './Reports.js';
+import { SUBSCRIPTION_ALL_REPORTS } from '../constants.js';
 
 const clientSuiteId = new ReactiveVar(Random.id());
 const serverSuiteId = new ReactiveVar('');
@@ -21,7 +20,7 @@ for (const key of Object.keys(context)) {
   global[key] = context[key];
 }
 
-export function runTests () {
+function runTests () {
   mocha.run();
   Meteor.call('Gagarin.runTests', (err, suiteId) => {
     if (!err && suiteId) {
@@ -36,14 +35,10 @@ function dispatch (name, ...args) {
   });
 }
 
-Template.body.helpers({
-  _reporter () {
-    return Mocha.reporters.spec;
-  },
-  suites () {
-    return [
-      { id: clientSuiteId.get(), title: 'client' },
-      { id: serverSuiteId.get(), title: 'server' },
-    ];
-  },
-});
+export {
+  runTests,
+  Reports,
+  clientSuiteId,
+  serverSuiteId,
+  SUBSCRIPTION_ALL_REPORTS,
+};

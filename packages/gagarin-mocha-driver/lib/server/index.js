@@ -1,7 +1,8 @@
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
 import { Mocha } from 'meteor/gagarin:mocha';
-import { createDispatcher } from '../utils/createDispatcher.js';
+import { createDispatcher } from '../createDispatcher.js';
+import { SUBSCRIPTION_ALL_REPORTS } from '../constants.js';
 
 const reports = [];
 const listeners = [];
@@ -49,7 +50,7 @@ Meteor.methods({
   },
 });
 
-Meteor.publish('Gagarin.Reports.all', function () {
+Meteor.publish(SUBSCRIPTION_ALL_REPORTS, function () {
 
   const onReport = rawReport => {
     const fields = { ...rawReport };
