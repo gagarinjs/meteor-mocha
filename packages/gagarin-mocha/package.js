@@ -11,8 +11,6 @@ Package.onUse(function (api) {
   api.use('ecmascript');
   api.use('promise');
   api.use('es5-shim');
-  api.use('tmeasday:check-npm-versions');
-  api.use('gagarin:module-paths');
   api.mainModule('lib/client.js', 'client');
   api.mainModule('lib/server.js', 'server');
 });

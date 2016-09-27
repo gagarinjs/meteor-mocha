@@ -1,6 +1,16 @@
-import 'meteor/gagarin:module-paths';
-import { checkNpmVersions } from 'meteor/tmeasday:check-npm-versions';
+// NOTE: This is a temporary workaround for the issue reported here:
+//       https://github.com/benjamn/install/issues/9#issuecomment-249371064
 
-checkNpmVersions({
-  'mocha' : '^3.0.2',
-}, 'gagarinjs:mocha');
+Object.defineProperty(module.constructor.prototype, 'paths', {
+  get: function () {
+    if (!Object.hasOwnProperty(this, 'paths')) {
+      return this.paths = [];
+    }
+  }
+});
+
+try {
+  require('mocha');
+} catch (err) {
+  console.warn('Looks like mocha is not installed.');
+}
