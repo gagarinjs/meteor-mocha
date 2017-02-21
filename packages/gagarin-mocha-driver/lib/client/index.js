@@ -22,13 +22,16 @@ for (const key of Object.keys(context)) {
   global[key] = context[key];
 }
 
-function runTests () {
-  mocha.run();
+Meteor.connection._stream.on('reset', () => {
   Meteor.call('Gagarin.getSuiteId', (err, suiteId) => {
     if (!err && suiteId) {
       serverSuiteId.set(suiteId);
     }
   });
+});
+
+function runTests () {
+  mocha.run();
 }
 
 function dispatch (name, ...args) {
