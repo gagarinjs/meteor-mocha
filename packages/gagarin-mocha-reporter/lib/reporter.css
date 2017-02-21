@@ -1,10 +1,11 @@
 .navigation {
   box-sizing: border-box;
-  position: absolute;
+  position: fixed;
   top: 0;
   right: 0;
   color: #555;
   font-family: sans-serif;
+  font-size: 12px;
   padding: 8px;
   z-index: 1;
 }
@@ -17,12 +18,13 @@
   padding: .5em .75em;
   cursor: pointer;
   background: rgba(0,0,0,0.5);
-  opacity: 0.8;
+  opacity: 0.4;
 }
 
 .navigation
 .navigation__item.active {
-  border-bottom: 4px solid grey;
+  border-bottom: 3px solid grey;
+  opacity: 0.8;
 }
 
 .navigation
@@ -34,6 +36,7 @@
 .navigation__item.error {
   color: #d44;
   border-color: #d44;
+  box-shadow: 0 0 12px -2px #d44;
 }
 
 .navigation
