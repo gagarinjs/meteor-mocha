@@ -1,8 +1,5 @@
 import { Template } from 'meteor/templating';
-import { Meteor } from 'meteor/meteor';
-import { Random } from 'meteor/random';
 import { Mocha } from 'meteor/gagarin:mocha';
-import { ReactiveVar } from 'meteor/reactive-var';
 import {
   clientSuiteId,
   serverSuiteId,
@@ -11,8 +8,21 @@ import './index.css';
 import './index.html';
 import './reporter.js';
 
+const parseQuery = (query) => {
+  const object = {};
+  query.split('&').forEach((part) => {
+    const keyValue = part.split('=');
+    object[decodeURIComponent(keyValue[0])] = decodeURIComponent(keyValue[1]);
+  });
+  return object;
+};
+
 Template.body.helpers({
-  _reporter () {
+  mochaReporter () {
+    const query = parseQuery(window.location.search.substr(1));
+    if (query.reporter) {
+      return Mocha.reporters[query.reporter] || Mocha.reporters.spec;
+    }
     return Mocha.reporters.spec;
   },
   suites () {

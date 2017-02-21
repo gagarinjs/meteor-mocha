@@ -79,8 +79,9 @@ Template.reporter.onRendered(function () {
 
   this.autorun(() => {
     this.nColumns.get(); // only depend on this variable ...
+    const { mochaReporter } = Template.currentData();
     const currentSuiteId = this.currentSuiteId.get();
-    const receiver = new Receiver(Mocha.reporters.spec);
+    const receiver = new Receiver(mochaReporter);
     let output;
     xterm.reset();
     this.resize();
