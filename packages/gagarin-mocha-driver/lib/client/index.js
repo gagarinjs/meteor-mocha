@@ -22,7 +22,7 @@ for (const key of Object.keys(context)) {
 
 function runTests () {
   mocha.run();
-  Meteor.call('Gagarin.runTests', (err, suiteId) => {
+  Meteor.call('Gagarin.getSuiteId', (err, suiteId) => {
     if (!err && suiteId) {
       serverSuiteId.set(suiteId);
     }

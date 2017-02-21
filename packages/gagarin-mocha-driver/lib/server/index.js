@@ -30,7 +30,6 @@ const mocha = new Mocha({
 });
 
 const context = {};
-let alreadyRun = false;
 mocha.suite.emit('pre-require', context, undefined, mocha);
 
 for (const key of Object.keys(context)) {
@@ -38,11 +37,7 @@ for (const key of Object.keys(context)) {
 }
 
 Meteor.methods({
-  'Gagarin.runTests' () {
-    if (!alreadyRun) {
-      alreadyRun = true;
-      mocha.run();
-    }
+  'Gagarin.getSuiteId' () {
     return suiteId;
   },
   'Gagarin.Reports.insert': function (suiteId, rawReport) {
@@ -62,11 +57,15 @@ Meteor.publish(SUBSCRIPTION_ALL_REPORTS, function () {
     onReport(rawReport);
   });
 
+  this.ready();
+
   listeners.push(onReport);
   this.onStop(() => {
     const index = listeners.findIndex(onReport);
     listeners.splice(index, 1);
   });
+});
 
-  this.ready();
+Meteor.startup(function () {
+  mocha.run();
 });
