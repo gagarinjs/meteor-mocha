@@ -6,13 +6,13 @@ import { create, delay } from './methods.js';
 import { USER, POST, POST_ID, USER_ID } from '../fixtures';
 
 describe('Test Methods.', function () {
-  
+
   before(function () {
     this.sandbox = new Sandbox();
     this.sandbox.collection(Meteor.users, [ USER ]);
     this.sandbox.collection(Posts, [ POST ]);
   });
-  
+
   after(function () {
     this.sandbox.restore();
   });
@@ -64,12 +64,12 @@ describe('Test Methods.', function () {
   });
 
   describe('Given I am logged in and I create a post', function () {
-    
+
     const rawPost = {
       title: 'Title',
       content: 'Content',
     };
-    
+
     beforeEach(function () {
       this.postId = create._execute({
         userId: USER_ID,
