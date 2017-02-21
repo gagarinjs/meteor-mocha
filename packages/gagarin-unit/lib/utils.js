@@ -33,6 +33,8 @@ export class Sandbox {
     const testCollection = new Mongo.Collection(null, {
       transform: collection._transform
     });
+    const collectionName = collection._name;
+    testCollection._collection.name = testCollection._name = collectionName;
     [
       'find',
       'findOne',
