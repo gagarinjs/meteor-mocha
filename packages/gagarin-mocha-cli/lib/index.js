@@ -9,6 +9,7 @@ const Asteroid = createClass();
 const asteroid = new Asteroid({
   endpoint: 'ws://localhost:3000/websocket',
   SocketConstructor: WebSocket.Client,
+  reconnectInterval: 1000,
 });
 
 let receiver;
@@ -19,7 +20,10 @@ asteroid.on('connected', () => {
 asteroid.on('disconnected', () => {
   spinner.start();
 });
-asteroid.ddp.on('added', ({ fields }) => {
+asteroid.ddp.on('added', ({ collection, fields }) => {
+  if (collection !== 'Gagarin.Reports') {
+    return;
+  }
   if (fields.name === 'start') {
     receiver = new Receiver(Mocha.reporters.spec);
   }
