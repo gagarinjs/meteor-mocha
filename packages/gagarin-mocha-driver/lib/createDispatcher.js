@@ -1,3 +1,4 @@
+import { Meteor } from 'meteor/meteor';
 import { Mocha } from 'meteor/gagarin:mocha';
 
 export function createDispatcher (dispatch) {
@@ -19,6 +20,9 @@ export function createDispatcher (dispatch) {
     });
 
     runner.on('fail', (test, error) => {
+      if (Meteor.isClient) {
+        console.error(error);
+      }
       dispatch('fail', cleanTest(test), cleanError(error));
     });
 

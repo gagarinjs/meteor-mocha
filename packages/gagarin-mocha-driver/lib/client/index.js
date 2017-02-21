@@ -11,6 +11,8 @@ const serverSuiteId = new ReactiveVar('');
 const mocha = new Mocha({
   ui: 'bdd',
   reporter: createDispatcher(dispatch),
+  // NOTE: Otherwise source map support is broken.
+  fullStackTrace: true,
 });
 
 const context = {};
