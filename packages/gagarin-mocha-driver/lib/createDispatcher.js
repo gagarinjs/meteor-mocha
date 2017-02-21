@@ -21,7 +21,7 @@ export function createDispatcher (dispatch) {
 
     runner.on('fail', (test, error) => {
       if (Meteor.isClient) {
-        console.error(error);
+        console.error(error.stack);
       }
       dispatch('fail', cleanTest(test), cleanError(error));
     });
