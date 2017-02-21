@@ -1,9 +1,9 @@
 import { Mocha } from 'meteor/gagarin:mocha';
 
 export class Receiver {
-  constructor (reporter, options) {
+  constructor (reporter, reporterOptions = {}) {
     this.reporter = reporter;
-    this.options = options;
+    this.reporterOptions = reporterOptions;
     this.rootSuite = this.suite = new Mocha.Suite('');
   }
 
@@ -39,14 +39,14 @@ export class Receiver {
         this.runner.emit(name, ...args);
     }
   }
-  
+
   createRunner (total) {
     const runner = new Mocha.Runner(this.suite);
     runner.total = total;
-    new this.reporter(runner, this.options);
+    new this.reporter(runner, this.reporterOptions);
     return runner;
   }
-  
+
   createSuite (rawSuite) {
     const suite = new Mocha.Suite(rawSuite.title);
     suite.parent = this.suite;

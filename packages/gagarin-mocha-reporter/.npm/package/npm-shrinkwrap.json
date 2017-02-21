@@ -1,9 +1,9 @@
 {
   "dependencies": {
     "xterm": {
-      "version": "1.0.0",
-      "resolved": "https://registry.npmjs.org/xterm/-/xterm-1.0.0.tgz",
-      "from": "xterm@1.0.0"
+      "version": "2.3.2",
+      "resolved": "https://registry.npmjs.org/xterm/-/xterm-2.3.2.tgz",
+      "from": "xterm@2.3.2"
     }
   }
 }

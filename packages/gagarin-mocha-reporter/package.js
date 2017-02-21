@@ -7,7 +7,7 @@ Package.describe({
 });
 
 Npm.depends({
-  xterm: '1.0.0'
+  xterm: '2.3.2'
 });
 
 Package.onUse(function (api) {

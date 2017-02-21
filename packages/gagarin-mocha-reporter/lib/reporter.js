@@ -6,8 +6,8 @@ import { Reports, SUBSCRIPTION_ALL_REPORTS } from 'meteor/gagarin:mocha-driver';
 import { ReactiveVar } from 'meteor/reactive-var';
 import { fontSize } from './fontSize.js';
 import { $ } from 'meteor/jquery';
-import Terminal from 'xterm';
-import 'xterm/src/xterm.css';
+import Terminal from 'xterm/dist/xterm.js';
+import 'xterm/dist/xterm.css';
 import './reporter.html';
 import './reporter.css';
 
@@ -49,10 +49,10 @@ Template.reporter.events({
 Template.reporter.onRendered(function () {
   const xterm = new Terminal({
     cols: this.nColumns.get(),
-    rows: 40,
+    rows: 60,
     convertEol: true,
     cursorBlink: true,
-    scrollback: 0, // should result in infinite buffer?
+    scrollback: 2048,
   });
   let waitingForResize = false;
   this.resize = () => {
@@ -62,17 +62,21 @@ Template.reporter.onRendered(function () {
         const nColumns = Math.floor(window.innerWidth / size);
         this.nColumns.set(nColumns);
         xterm.resize(nColumns, xterm.lines.length);
+        xterm.showCursor();
         waitingForResize = false;
       }, 50);
       waitingForResize = true;
     }
   };
+
   $(window).on('resize', this.resize);
 
   Mocha.reporters.Base.useColors = true;
   Mocha.reporters.Base.window.width = xterm.cols;
 
   xterm.open(this.find('.xterm'));
+  xterm.on('refresh', this.resize);
+
   this.autorun(() => {
     this.nColumns.get(); // only depend on this variable ...
     const currentSuiteId = this.currentSuiteId.get();
@@ -89,7 +93,6 @@ Template.reporter.onRendered(function () {
         if (doc.name === 'start') {
           output = captureAllOutput({
             onOutput: xterm.write.bind(xterm),
-            onUpdate: this.resize,
           });
         }
         receiver.emit(doc.name, ...doc.args);
