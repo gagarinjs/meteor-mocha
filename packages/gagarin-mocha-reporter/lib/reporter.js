@@ -1,13 +1,14 @@
 import { Template } from 'meteor/templating';
+import { Tracker } from 'meteor/tracker';
 import { Mocha } from 'meteor/gagarin:mocha';
-import { Receiver } from './Receiver.js';
-import { captureAllOutput } from './captureAllOutput';
 import { Reports, SUBSCRIPTION_ALL_REPORTS } from 'meteor/gagarin:mocha-driver';
 import { ReactiveVar } from 'meteor/reactive-var';
-import { fontSize } from './fontSize.js';
 import { $ } from 'meteor/jquery';
 import Terminal from 'xterm/dist/xterm.js';
+import 'xterm/dist/addons/fit';
 import 'xterm/dist/xterm.css';
+import { captureAllOutput } from './captureAllOutput';
+import { Receiver } from './Receiver.js';
 import './reporter.html';
 import './reporter.css';
 
@@ -15,24 +16,23 @@ Template.reporter.onCreated(function () {
   this.subscribe(SUBSCRIPTION_ALL_REPORTS);
   this.currentSuiteId = new ReactiveVar(this.data.suites[0].id);
   this.nColumns = new ReactiveVar(140);
+  this.needsRedraw = new Tracker.Dependency();
 });
 
 Template.reporter.helpers({
-  currentSuiteId () {
+  currentSuiteId() {
     return Template.instance().currentSuiteId.get();
   },
-  activeIf (suiteId) {
-    if (Template.instance().currentSuiteId.get() === suiteId) {
-      return 'active';
-    }
+  activeIf(suiteId) {
+    return Template.instance().currentSuiteId.get() === suiteId ? 'active' : '';
   },
-  status (suiteId) {
+  status(suiteId) {
     if (Reports.find({ suiteId, name: 'fail' }).count() > 0) {
       return 'error';
     }
     return 'success';
   },
-  icon (suiteId) {
+  icon(suiteId) {
     if (Reports.find({ suiteId, name: 'fail' }).count() > 0) {
       return Mocha.reporters.Base.symbols.err;
     }
@@ -43,29 +43,28 @@ Template.reporter.helpers({
 Template.reporter.events({
   'click .js-suite': function (e, t) {
     t.currentSuiteId.set(this.id);
-  }
+  },
 });
 
 Template.reporter.onRendered(function () {
   const xterm = new Terminal({
     cols: this.nColumns.get(),
-    rows: 60,
+    rows: 40,
     convertEol: true,
     cursorBlink: true,
     scrollback: 2048,
   });
-  let waitingForResize = false;
+
+  let processing = false;
   this.resize = () => {
-    if (!waitingForResize) {
+    if (!processing) {
       setTimeout(() => {
-        const size = fontSize(this.find('.xterm .terminal'));
-        const nColumns = Math.floor(window.innerWidth / size);
-        this.nColumns.set(nColumns);
-        xterm.resize(nColumns, xterm.lines.length);
+        xterm.fit();
         xterm.showCursor();
-        waitingForResize = false;
+        this.needsRedraw.changed();
+        processing = false;
       }, 50);
-      waitingForResize = true;
+      processing = true;
     }
   };
 
@@ -75,33 +74,34 @@ Template.reporter.onRendered(function () {
   Mocha.reporters.Base.window.width = xterm.cols;
 
   xterm.open(this.find('.xterm'));
-  xterm.on('refresh', this.resize);
+  xterm.fit();
 
   this.autorun(() => {
-    this.nColumns.get(); // only depend on this variable ...
+    this.needsRedraw.depend();
     const { mochaReporter } = Template.currentData();
     const currentSuiteId = this.currentSuiteId.get();
     const receiver = new Receiver(mochaReporter);
     let output;
     xterm.reset();
-    this.resize();
+    xterm.showCursor();
+
     Reports.find({
-      suiteId: currentSuiteId
+      suiteId: currentSuiteId,
     }, {
       sort: { index: 1 },
     }).observe({
-      added (doc) {
-        if (doc.name === 'start') {
+      added(event) {
+        if (event.name === 'start') {
           output = captureAllOutput({
             onOutput: xterm.write.bind(xterm),
           });
         }
-        receiver.emit(doc.name, ...doc.args);
-        if (doc.name === 'end' && output) {
+        receiver.emit(event.name, ...event.args);
+        if (event.name === 'end' && output) {
           output.restore();
           output = null;
         }
-      }
+      },
     });
   });
 });

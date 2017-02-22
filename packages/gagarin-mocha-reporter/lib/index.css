@@ -6,5 +6,5 @@ body {
   font-size: 12px;
   white-space: nowrap;
   overflow: hidden;
-  pointer-events: none;
+  height: 100vh;
 }
