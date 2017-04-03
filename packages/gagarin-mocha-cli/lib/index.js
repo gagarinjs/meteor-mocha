@@ -1,30 +1,29 @@
-const Mocha = require('mocha');
-const WebSocket = require('faye-websocket');
-const createClass = require('asteroid').createClass;
-const Spinner = require('cli-spinner').Spinner;
-const minimist = require('minimist');
-const Receiver = require('./Receiver.js');
-const clear = require('cli-clear');
+var Mocha = require('mocha');
+var WebSocket = require('faye-websocket');
+var createClass = require('asteroid').createClass;
+var Spinner = require('cli-spinner').Spinner;
+var minimist = require('minimist');
+var Receiver = require('./Receiver.js');
+var clear = require('cli-clear');
 
-const spinner = new Spinner('  waiting for server... %s');
-const argv = minimist(process.argv.slice(2));
-const Asteroid = createClass();
-const asteroid = new Asteroid({
-  endpoint: `ws://localhost:${argv.port || 3000}/websocket`,
+var spinner = new Spinner('  waiting for server... %s');
+var argv = minimist(process.argv.slice(2));
+var Asteroid = createClass();
+var asteroid = new Asteroid({
+  endpoint: 'ws://localhost:' + (argv.port || 3000) + '/websocket',
   SocketConstructor: WebSocket.Client,
   reconnectInterval: 1000,
 });
-const reporter = argv.reporter ? Mocha.reporters[argv.reporter] : Mocha.reporters.spec;
+var reporter = argv.reporter ? Mocha.reporters[argv.reporter] : Mocha.reporters.spec;
 
 if (argv.help) {
-  console.log(`\
-Usage:
-
---port     <number>   specify on which port meteor is running (default: 3000)
---reporter <reporter> choose a custom mocha reporter (default: spec)
---once                only run once
-
-`);
+  console.log([
+'Usage:',
+'',
+'--port     <number>   specify on which port meteor is running (default: 3000)',
+'--reporter <reporter> choose a custom mocha reporter (default: spec)',
+'--once                only run once',
+''].join('\n'));
   process.exit();
 }
 
@@ -33,23 +32,23 @@ if (!reporter) {
   process.exit(1);
 }
 
-let hasError = true;
-let receiver;
+var hasError = true;
+var receiver;
 
 asteroid.subscribe('Gagarin.Reports.all');
-asteroid.on('connected', () => {
+asteroid.on('connected', function () {
   if (!argv.once) {
     spinner.stop();
   }
 });
 
-asteroid.on('disconnected', () => {
+asteroid.on('disconnected', function () {
   if (!argv.once) {
     spinner.start();
   }
 });
 
-asteroid.ddp.on('ready', () => {
+asteroid.ddp.on('ready', function () {
   if (argv.once) {
     process.exit(hasError ? 1 : 0);
   } else {
@@ -57,7 +56,9 @@ asteroid.ddp.on('ready', () => {
   }
 });
 
-asteroid.ddp.on('added', ({ collection, fields }) => {
+asteroid.ddp.on('added', function (options) {
+  var collection = options.collection;
+  var fields = options.fields;
   if (collection !== 'Gagarin.Reports') {
     return;
   }
@@ -73,7 +74,7 @@ asteroid.ddp.on('added', ({ collection, fields }) => {
     hasError = true;
   }
   if (receiver) {
-    receiver.emit(fields.name, ...fields.args);
+    receiver.emit.apply(receiver, [fields.name].concat(fields.args));
   }
   if (fields.name === 'end') {
     receiver = null;
