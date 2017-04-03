@@ -1,0 +1,12 @@
+babel-compiler@6.14.1
+babel-runtime@1.0.1
+ecmascript@0.6.3
+ecmascript-runtime@0.3.15
+es5-shim@4.6.15
+gagarin:mocha@0.0.1
+gagarin:mocha-fibers@0.0.1
+meteor@1.6.1
+modules@0.7.9
+modules-runtime@0.7.9
+promise@0.8.8
+underscore@1.0.10

@@ -1,9 +1,11 @@
 
 Package.describe({
-  name        : 'gagarin:mocha-reporter',
-  version     : '0.0.1',
-  description : 'A simple mocha reporter',
-  testOnly    : true,
+  name:          'gagarin:mocha-reporter',
+  version:       '0.0.1',
+  summary:       'A simple mocha reporter bulit on top of xtermjs',
+  testOnly:      true,
+  git:           'https://github.com/gagarinjs/meteor-mocha.git',
+  documentation: '../../README.md',
 });
 
 Npm.depends({
@@ -18,7 +20,7 @@ Package.onUse(function (api) {
   api.use('mongo');
   api.use('templating');
   api.use('reactive-var');
-  api.use('gagarin:mocha');
-  api.use('gagarin:mocha-driver');
+  api.use('gagarin:mocha@0.0.1');
+  api.use('gagarin:mocha-driver@0.0.1');
   api.mainModule('lib/index.js', 'client');
 });

@@ -1,9 +1,11 @@
 
 Package.describe({
-  name        : 'gagarin:mocha',
-  version     : '0.0.1',
-  description : 'A mocha wrapper from Gagarin',
-  testOnly    : true,
+  name:          'gagarin:mocha',
+  version:       '0.0.1',
+  summary:       'A simple wrapper that allows importing mocha in Meteor environemnt',
+  testOnly:      true,
+  git:           'https://github.com/gagarinjs/meteor-mocha.git',
+  documentation: '../../README.md',
 });
 
 Package.onUse(function (api) {

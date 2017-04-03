@@ -1,9 +1,11 @@
 
 Package.describe({
-  name        : 'gagarin:unit',
-  version     : '0.0.1',
-  description : 'A toolbelt for writing unit tests from Gagarin team',
-  testOnly    : true,
+  name:          'gagarin:unit',
+  version:       '0.0.1',
+  summary:       'A toolbelt containing libraries useful for writing unit tests',
+  testOnly:      true,
+  git:           'https://github.com/gagarinjs/meteor-mocha.git',
+  documentation: '../../README.md',
 });
 
 Npm.depends({
