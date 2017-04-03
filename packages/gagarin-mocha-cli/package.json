@@ -1,12 +1,25 @@
 {
-  "name": "gagarin-mocha-cli",
-  "version": "1.0.0",
-  "description": "",
+  "name": "@gagarinjs/mocha-cli",
+  "version": "0.0.1",
+  "description": "A tool for connecting to Gagarin's mocha test driver",
   "main": "lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "bin": {
+    "gagarin-mocha-cli": "./bin/gagarin-mocha-cli"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/gagarinjs/meteor-mocha"
+  },
+  "keywords": [
+    "gagarin",
+    "testing",
+    "mocha",
+    "meteor",
+    "reporter"
+  ],
   "author": "apendua",
   "license": "MIT",
   "dependencies": {
