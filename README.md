@@ -1,3 +1,5 @@
+![logo](https://s3.amazonaws.com/gagarinjs/assets/gagarinLogo.svg)
+
 # meteor-mocha
 
 This repository contains a set of packages to help writing mocha tests in Meteor environment.
@@ -22,6 +24,8 @@ You can now see the tests results at http://localhost:3000. As you will see we a
 to show the results, which means that you can use whatever mocha reporter you like the most, e.g.
 
 http://localhost:3000/?reporter=nyan
+
+![preview](https://s3.amazonaws.com/gagarinjs/assets/gagarinMochaPreview.gif)
 
 ## Using with the cli tool
 
