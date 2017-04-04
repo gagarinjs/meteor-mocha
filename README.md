@@ -7,10 +7,14 @@ This repository contains a set of packages to help writing mocha tests in Meteor
 ## Quick start
 
 ```
+meteor install --save-dev mocha
 meteor add gagarin:mocha-driver
 meteor add gagarin:mocha-reporter
 meteor test --driver-package gagarin:mocha-driver
 ```
+Please note that you need to add `mocha` manually. This is a good, because you can use whatever
+version of `mocha` you want.
+
 
 To add some tests, simply put them in `*.test(s).js` files somewhere in your project, e.g.
 ```javascript
