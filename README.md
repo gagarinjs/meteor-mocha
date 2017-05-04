@@ -7,7 +7,7 @@ This repository contains a set of packages to help writing mocha tests in Meteor
 ## Quick start
 
 ```
-meteor install --save-dev mocha
+meteor npm install --save-dev mocha
 meteor add gagarin:mocha-driver
 meteor add gagarin:mocha-reporter
 meteor test --driver-package gagarin:mocha-driver
