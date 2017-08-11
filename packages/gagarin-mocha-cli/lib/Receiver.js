@@ -1,7 +1,8 @@
 var Mocha = require('mocha');
 
-function Receiver (reporter, reporterOptions) {
+function Receiver (reporter, reporterOptions, onEnd) {
   this.reporter = reporter;
+  this.onEnd = onEnd;
   this.reporterOptions = reporterOptions || {};
   this.rootSuite = this.suite = new Mocha.Suite('');
 }
@@ -34,6 +35,9 @@ Receiver.prototype.emit = function emit(name /* , ...args */) {
       break;
     case 'end':
       this.runner.emit(name, args[0]);
+      if (this.onEnd) {
+        this.onEnd(args[0]);
+      }
       break;
     default:
       this.runner.emit.apply(this.runner, [name].concat(args));
