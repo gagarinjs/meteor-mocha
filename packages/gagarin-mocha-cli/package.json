@@ -1,6 +1,6 @@
 {
   "name": "@gagarinjs/mocha-cli",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A tool for connecting to Gagarin's mocha test driver",
   "main": "lib/index.js",
   "scripts": {

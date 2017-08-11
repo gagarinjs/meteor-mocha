@@ -38,5 +38,12 @@ have all of them printed in a terminal, you can use `gagarin-mocha-cli`.
 ```
 npm install -g @gagarinjs/mocha-cli
 ```
-Simply start meteor in test mode with `gagarin:mocha-driver` as you would normally do
-and run `gagarin-mocha-cli` in another terminal to watch the results.
+Then run
+```
+gagarin-mocha-cli
+```
+in your project root. By default `gagarin-mocha-cli` will spawn `meteor` process in the background and will connect to it to grab tests results. See `gagarin-mocha-cli --help`,
+for all available options. For continous integration you will probably want to use
+```
+gagarin-mocha-cli --once --reports-only --reporter <reporter>
+```
