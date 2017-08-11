@@ -74,7 +74,6 @@ function initialize(remote) {
     reconnectInterval: 1000,
   });
 
-  var hasError = true;
   var receiver;
   var spinner = new Spinner('  waiting for server... %s');
 
