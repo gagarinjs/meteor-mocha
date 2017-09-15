@@ -46,7 +46,10 @@ if (!argv.remote) {
   });
 
   meteor.stdout.on('data', function (data) {
-    initialize();
+    // Only try to connect when you see "app running at" message
+    if (/App running at:/.test(data)) {
+      initialize();
+    }
     if (!argv['report-only']) {
       process.stdout.write(data);
     }
@@ -66,12 +69,12 @@ function initialize(remote) {
   }
   initialized = true;
 
-  var endpoint = remote || 'ws://localhost:' + argv.port + '/websocket';
+  var endpoint = remote || 'ws://127.0.0.1:' + argv.port + '/websocket';
   var Asteroid = createClass();
   var asteroid = new Asteroid({
     endpoint: endpoint,
     SocketConstructor: WebSocket.Client,
-    reconnectInterval: 1000,
+    reconnectInterval: 2000,
   });
 
   var receiver;
