@@ -18,11 +18,12 @@ export function runInsideFiber(originalFunction) {
     }
     if (fn) {
       return originalFunction(name, function(done) {
+        const context = this;
         new Fiber(function() {
           if (fn.length > 0) {
-            fn(done);
+            fn.call(context, done);
           } else {
-            var promise = fn();
+            var promise = fn.call(context);
             if (promise && promise.then) {
               promiseAsThunk(promise)(done);
             } else {
