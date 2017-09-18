@@ -1,24 +1,4 @@
-import Fiber, { Future } from 'fibers';
-
-export function wrapPromisesForFiber(obj, methods) {
-  var proxy = {};
-  methods.forEach(function(method) {
-    var original = obj[method];
-    proxy[method] = function (...args) {
-      var f = new Future();
-      var promise = original.apply(obj, args);
-      promiseAsThunk(promise)(function(error, value) {
-        if (error) {
-          f.throw(error);
-        } else {
-          f.return(value);
-        }
-      });
-      return f.wait();
-    };
-  });
-  return proxy;
-}
+import Fiber from 'fibers';
 
 export function promiseAsThunk(promise) {
   return function(done) {
