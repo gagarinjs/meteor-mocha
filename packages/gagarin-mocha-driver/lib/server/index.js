@@ -36,12 +36,24 @@ for (const key of Object.keys(context)) {
   global[key] = context[key];
 }
 
+let testsAlreadyRun = false;
+const runTests = () => {
+  if (testsAlreadyRun) {
+    return;
+  }
+  testsAlreadyRun = true;
+  mocha.run();
+};
+
 Meteor.methods({
   'Gagarin.getSuiteId' () {
     return suiteId;
   },
   'Gagarin.Reports.insert': function (suiteId, rawReport) {
     addReport(suiteId, rawReport.name, ...rawReport.args);
+  },
+  'Gagarin.runTests' () {
+    runTests();
   },
 });
 
@@ -67,5 +79,7 @@ Meteor.publish(SUBSCRIPTION_ALL_REPORTS, function () {
 });
 
 Meteor.startup(function () {
-  mocha.run();
+  if (!process.env.GAGARIN_MOCHA_RUN_TESTS_MANUALLY) {
+    runTests();
+  }
 });

@@ -6,6 +6,7 @@ var Spinner = require('cli-spinner').Spinner;
 var minimist = require('minimist');
 var Receiver = require('./Receiver.js');
 var clear = require('cli-clear');
+var assign = require('lodash.assign');
 
 var argv = minimist(process.argv.slice(2), {
   default: {
@@ -43,12 +44,19 @@ if (!argv.remote) {
     'gagarin:mocha-driver',
   ], {
     stdio: 'pipe',
+    env: assign(
+      {},
+      process.env,
+      {
+        GAGARIN_MOCHA_RUN_TESTS_MANUALLY: '1',
+      }
+    ),
   });
 
   meteor.stdout.on('data', function (data) {
     // Only try to connect when you see "app running at" message
     if (/App running at:/.test(data)) {
-      initialize();
+      initialize(null, true);
     }
     if (!argv['report-only']) {
       process.stdout.write(data);
@@ -63,7 +71,7 @@ if (!argv.remote) {
 }
 
 var initialized = false;
-function initialize(remote) {
+function initialize(remote, runTestsManually) {
   if (initialized) {
     return;
   }
@@ -84,6 +92,13 @@ function initialize(remote) {
   asteroid.on('connected', function () {
     if (!argv.once) {
       spinner.stop();
+    }
+    if (runTestsManually) {
+      asteroid
+        .call('Gagarin.runTests')
+        .catch(function (err) {
+          console.error(err);
+        });
     }
   });
 
