@@ -1,21 +1,11 @@
 /*eslint-env mocha*/
 import { Fake } from 'meteor/anti:fake';
-import Future from 'fibers/future';
+import sleep from './sleep';
 
-const sleep = (ms, err) => {
-  const future = new Future();
-  setTimeout(() => {
-    if (err) {
-      future.throw(err);
-    } else {
-      future.return();
-    }
-  }, ms);
-  return future.wait();
-};
+describe('Test Fibers', function () {
 
-describe('Test Anything', function () {
-  beforeEach(() => {
+  beforeEach(function () {
+    this.timeout(100);
     sleep(50);
   });
 
