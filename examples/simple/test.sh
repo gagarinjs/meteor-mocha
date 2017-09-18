@@ -1,1 +1,1 @@
-meteor test --driver-package gagarin:mocha-driver
+./packages/gagarin-mocha-cli/bin/gagarin-mocha-cli --once
