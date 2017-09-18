@@ -1,7 +1,7 @@
 
 Package.describe({
   name:          'gagarin:mocha-fibers',
-  version:       '0.0.1',
+  version:       '0.0.2',
   summary:       'A wrapper for mocha bdd interface for writing fiber-aware tests',
   testOnly:      true,
   git:           'https://github.com/gagarinjs/meteor-mocha.git',

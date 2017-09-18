@@ -38,8 +38,8 @@ email@1.2.3
 es5-shim@4.6.15
 fastclick@1.0.13
 gagarin:mocha@0.0.1
-gagarin:mocha-driver@0.0.1
-gagarin:mocha-fibers@0.0.1
+gagarin:mocha-driver@0.0.2
+gagarin:mocha-fibers@0.0.2
 gagarin:mocha-reporter@0.0.1
 gagarin:unit@0.0.1
 geojson-utils@1.0.10
