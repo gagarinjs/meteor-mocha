@@ -27,7 +27,7 @@ export function property (arbitrary, verify) {
 
 export class Sandbox {
   constructor() {
-    this.sandbox = sinon.sandbox.create();
+    this.sandbox = sinon.createSandbox();
   }
   collection(collection, documents = []) {
     const testCollection = new Mongo.Collection(null, {
