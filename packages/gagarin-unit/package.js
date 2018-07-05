@@ -1,7 +1,7 @@
 
 Package.describe({
   name:          'gagarin:unit',
-  version:       '0.0.1',
+  version:       '0.5.0',
   summary:       'A toolbelt containing libraries useful for writing unit tests',
   testOnly:      true,
   git:           'https://github.com/gagarinjs/meteor-mocha.git',
