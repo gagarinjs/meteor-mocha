@@ -9,11 +9,11 @@ Package.describe({
 });
 
 Npm.depends({
-  chai: '3.5.0',
-  sinon: '1.17.5',
-  jsverify: '0.7.1',
-  'sinon-chai': '2.8.0',
-  'chai-as-promised': '5.3.0',
+  chai: '4.1.2',
+  sinon: '6.1.0',
+  jsverify: '0.8.3',
+  'sinon-chai': '3.2.0',
+  'chai-as-promised': '7.1.1',
 });
 
 Package.onUse(function (api) {
