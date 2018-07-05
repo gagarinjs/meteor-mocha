@@ -26,15 +26,16 @@ export function property (arbitrary, verify) {
 }
 
 export class Sandbox {
-  constructor () {
+  constructor() {
     this.sandbox = sinon.sandbox.create();
   }
-  collection (collection, documents=[]) {
+  collection(collection, documents = []) {
     const testCollection = new Mongo.Collection(null, {
-      transform: collection._transform
+      transform: collection._transform,
     });
     const collectionName = collection._name;
-    testCollection._collection.name = testCollection._name = collectionName;
+    testCollection._collection.name = collectionName;
+    testCollection._name = collectionName;
     [
       'find',
       'findOne',
@@ -42,14 +43,17 @@ export class Sandbox {
       'upsert',
       'update',
       'remove',
-    ].forEach(name => {
-      this.sandbox.stub(collection, name, testCollection[name].bind(testCollection));
+    ].forEach((name) => {
+      this.sandbox.stub(collection, name).callsFake(testCollection[name].bind(testCollection));
+      if (collection.direct) {
+        this.sandbox.stub(collection.direct, name).callsFake(testCollection[name].bind(testCollection));
+      }
     });
     for (const doc of documents) {
       testCollection.insert(doc);
     }
   }
-  restore () {
+  restore() {
     this.sandbox.restore();
   }
 }
