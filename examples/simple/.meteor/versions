@@ -41,7 +41,7 @@ gagarin:mocha@0.0.1
 gagarin:mocha-driver@0.0.2
 gagarin:mocha-fibers@0.0.2
 gagarin:mocha-reporter@0.0.1
-gagarin:unit@0.5.0
+gagarin:unit@0.5.1
 geojson-utils@1.0.10
 hot-code-push@1.0.4
 html-tools@1.0.11
