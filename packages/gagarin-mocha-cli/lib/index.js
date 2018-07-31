@@ -18,6 +18,9 @@ if (argv.help) {
 'Usage:',
 '',
 '--port     <number>   specify on which port meteor is running (default: 3000)',
+'--settings <path>     specify path to the settings file',
+'--full-app            if present tests will be run in "full app" mode',
+'--raw-logs            same as Meteor\'s --raw-logs',
 '--reporter <reporter> choose a custom mocha reporter (default: spec)',
 '--once                only run once',
 '--report-only         only show reporter output',
@@ -36,13 +39,26 @@ if (!reporter) {
 
 var meteor;
 if (!argv.remote) {
-  meteor = childProcess.spawn('meteor', [
+  const args = [
     'test',
     '--port',
     argv.port,
     '--driver-package',
     'gagarin:mocha-driver',
-  ], {
+  ];
+  if (argv.settings) {
+    args.push(
+      '--settings',
+      argv.settings,
+    );
+  }
+  if (argv['full-app']) {
+    args.push('--full-app');
+  }
+  if (argv['raw-logs']) {
+    args.push('--raw-logs');
+  }  
+  meteor = childProcess.spawn('meteor', args, {
     stdio: 'pipe',
     env: assign(
       {},
