@@ -79,6 +79,12 @@ if (!argv.remote) {
     }
   });
 
+  meteor.stderr.on('data', function (data) {
+    if (!argv['report-only']) {
+      process.stderr.write(data);
+    }
+  }); 
+
   meteor.on('exit', () => {
     process.exit(hasError ? 1 : 0);
   });

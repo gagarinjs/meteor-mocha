@@ -3,6 +3,8 @@ import { Fake } from 'meteor/anti:fake';
 import { Meteor } from 'meteor/meteor';
 import sleep from './sleep';
 
+console.error('Error');
+
 describe('Test Settings (full app)', function () {
 
   beforeEach(function () {
