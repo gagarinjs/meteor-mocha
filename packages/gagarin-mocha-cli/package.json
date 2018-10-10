@@ -1,6 +1,6 @@
 {
   "name": "@gagarinjs/mocha-cli",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "description": "A tool for connecting to Gagarin's mocha test driver",
   "main": "lib/index.js",
   "scripts": {
@@ -22,13 +22,15 @@
   ],
   "author": "apendua",
   "license": "MIT",
+  "peerDependencies": {
+    "mocha": "^5.2.0"
+  },
   "dependencies": {
     "asteroid": "^2.0.3",
     "cli-clear": "^1.0.4",
     "cli-spinner": "^0.2.6",
     "faye-websocket": "^0.11.1",
     "lodash.assign": "^4.2.0",
-    "minimist": "^1.2.0",
-    "mocha": "^3.2.0"
+    "minimist": "^1.2.0"
   }
 }
